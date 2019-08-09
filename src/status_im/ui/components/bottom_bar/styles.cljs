@@ -91,8 +91,7 @@
                 :shadow-radius    4
                 :shadow-offset    {:width 0 :height -5}
                 :shadow-opacity   0.3
-                :shadow-color     "rgba(0, 9, 26, 0.12)"}
-   })
+                :shadow-color     "rgba(0, 9, 26, 0.12)"}})
 
 (def tabs
   {:height         tabs-height
