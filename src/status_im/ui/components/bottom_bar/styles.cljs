@@ -8,7 +8,7 @@
   (cond
     platform/android? 52
     platform/ios? 52
-    platform/desktop? 68))
+    platform/desktop? 36))
 
 (def minimized-tabs-height 36)
 
@@ -86,7 +86,13 @@
                 :shadow-radius    4
                 :shadow-offset    {:width 0 :height -5}
                 :shadow-opacity   0.3
-                :shadow-color     "rgba(0, 9, 26, 0.12)"}})
+                :shadow-color     "rgba(0, 9, 26, 0.12)"}
+   :desktop    {:background-color :white
+                :shadow-radius    4
+                :shadow-offset    {:width 0 :height -5}
+                :shadow-opacity   0.3
+                :shadow-color     "rgba(0, 9, 26, 0.12)"}
+   })
 
 (def tabs
   {:height         tabs-height
