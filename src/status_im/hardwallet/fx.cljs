@@ -1,5 +1,6 @@
 (ns status-im.hardwallet.fx
   (:require [re-frame.core :as re-frame]
+            [status-im.utils.types :as types]
             [status-im.hardwallet.card :as card]
             [status-im.utils.datetime :as utils.datetime]
             [status-im.native-module.core :as statusgo]
@@ -97,3 +98,17 @@
  :send-transaction-with-signature
  (fn [{:keys [transaction signature on-completed]}]
    (statusgo/send-transaction-with-signature transaction signature on-completed)))
+
+(re-frame/reg-fx
+ :hardwallet/persist-pairings
+ (fn [pairings]
+   (.. js-dependencies/async-storage
+       (setItem "status-keycard-pairings" (types/clj->json pairings)))))
+
+(re-frame/reg-fx
+ :hardwallet/retrieve-pairings
+ (fn []
+   (.. js-dependencies/async-storage
+       (getItem "status-keycard-pairings")
+       (then #(re-frame/dispatch [:hardwallet.callback/on-retrieve-pairings-success
+                                  (types/json->clj %)])))))

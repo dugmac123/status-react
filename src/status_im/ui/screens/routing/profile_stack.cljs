@@ -34,6 +34,6 @@
               config/hardwallet-enabled?
               (concat [:keycard-settings
                        :reset-card
-                       :hardwallet-connect-settings
+                       :keycard-connection-lost
                        :enter-pin-settings]))
    :config  {:initialRouteName :my-profile}})

@@ -86,19 +86,20 @@
 
 (fx/defn start-app [cofx]
   (fx/merge cofx
-            {::get-device-UUID nil
-             ::get-supported-biometric-auth nil
-             ::init-keystore nil
-             ::restore-native-settings nil
-             ::open-multiaccounts #(re-frame/dispatch [::initialize-multiaccounts %])
-             ::data-store/init-store nil
+            {::get-device-UUID                      nil
+             ::get-supported-biometric-auth         nil
+             ::init-keystore                        nil
+             ::restore-native-settings              nil
+             ::open-multiaccounts                   #(re-frame/dispatch [::initialize-multiaccounts %])
+             ::data-store/init-store                nil
              :ui/listen-to-window-dimensions-change nil
              :notifications/init                    nil
              :network/listen-to-network-status      nil
              :network/listen-to-connection-status   nil
              :hardwallet/register-card-events       nil
-             :hardwallet/check-nfc-support nil
-             :hardwallet/check-nfc-enabled nil}
+             :hardwallet/check-nfc-support          nil
+             :hardwallet/check-nfc-enabled          nil
+             :hardwallet/retrieve-pairings          nil}
             (initialize-app-db)))
 
 (re-frame/reg-fx
