@@ -21,6 +21,7 @@ target 'StatusIm' do
   pod 'TouchID', path: '../node_modules/react-native-touch-id'
   pod 'SQLCipher', '~>3.0'
   pod 'SSZipArchive'
+  pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-community/async-storage'
 
   target 'StatusImTests' do
     inherit! :search_paths

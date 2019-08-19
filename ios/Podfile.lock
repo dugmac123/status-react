@@ -70,6 +70,8 @@ PODS:
     - React
   - React/Core (0.59.10):
     - yoga (= 0.59.10.React)
+  - RNCAsyncStorage (1.6.1):
+    - React
   - RNKeychain (3.0.0-rc.3):
     - React
   - SQLCipher (3.4.2):
@@ -89,6 +91,7 @@ DEPENDENCIES:
   - react-native-background-timer (from `../node_modules/react-native-background-timer`)
   - react-native-camera (from `../node_modules/react-native-camera`)
   - react-native-webview (from `../node_modules/react-native-webview`)
+  - "RNCAsyncStorage (from `../node_modules/@react-native-community/async-storage`)"
   - RNKeychain (from `../node_modules/react-native-keychain`)
   - SQLCipher (~> 3.0)
   - SSZipArchive
@@ -118,6 +121,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-camera"
   react-native-webview:
     :path: "../node_modules/react-native-webview"
+  RNCAsyncStorage:
+    :path: "../node_modules/@react-native-community/async-storage"
   RNKeychain:
     :path: "../node_modules/react-native-keychain"
   TouchID:
@@ -145,6 +150,6 @@ SPEC CHECKSUMS:
   TouchID: ba4c656d849cceabc2e4eef722dea5e55959ecf4
   yoga: 684513b14b03201579ba3cee20218c9d1298b0cc
 
-PODFILE CHECKSUM: 13006106aa0716d54fffebf8dcb42006f0fb8798
+PODFILE CHECKSUM: 2a5eac8adfa73a5bb1ffd308939fc96deec18351
 
 COCOAPODS: 1.7.5
