@@ -942,6 +942,7 @@
     "enter-pair-code-description": "Pairing code was displayed to you during the Keycard setup",
     "no-pairing-slots-available": "This card is already paired to 5 devices and cannot pair to this one. Please use one of the paired devices, log in with this card and free up pairing slots on the card",
     "keycard-has-multiaccount-on-it": "This card has already an multiaccount on it. If you wish to change it, login first and reset your card. If you want to import keycard multiaccount, please use \"Add existing multiaccount\"",
+    "keycard-existing-multiaccount": "You can't recover this multiaccount because it's already on your phone",
     "card-already-linked": "Card is already linked to another multiaccount",
     "keycard-unauthorized-operation": "You're unauthorized to perform this operation.\n Please tap valid card and try again.",
     "no-multiaccount-on-card": "No multiaccount on this card",

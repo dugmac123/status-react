@@ -375,12 +375,21 @@
                     (proceed-with-generating-key)))
         (load-pair-screen cofx)))))
 
+(fx/defn show-existing-multiaccount-alert
+  [{:keys [db] :as cofx}]
+  (fx/merge cofx
+            {:utils/show-confirmation {:title               nil
+                                       :content             (i18n/label :t/keycard-existing-multiaccount)
+                                       :cancel-button-text  ""
+                                       :confirm-button-text :t/okay}}
+            (navigation/navigate-back)))
+
 (fx/defn check-card-state
   {:events [:hardwallet/check-card-state]}
   [{:keys [db] :as cofx}]
   (let [app-info (get-in db [:hardwallet :application-info])
         flow (get-in db [:hardwallet :flow])
-        instance-uid (:instance-uid app-info)
+        {:keys [instance-uid key-uid]} app-info
         pairing (get-pairing db instance-uid)
         app-info' (if pairing (assoc app-info :paired? true) app-info)
         card-state (get-card-state app-info')]
@@ -396,9 +405,12 @@
                   (load-pin-screen)))
               (when (and (= card-state :multiaccount)
                          (= flow :import))
-                (if pairing
-                  (load-recovery-pin-screen)
-                  (load-pair-screen)))
+                (let [existing-multiaccount (find-multiaccount-by-keycard-key-uid db key-uid)]
+                  (if existing-multiaccount
+                    (show-existing-multiaccount-alert)
+                    (if pairing
+                      (load-recovery-pin-screen)
+                      (load-pair-screen)))))
               (when (= card-state :blank)
                 (if (= flow :import)
                   (navigation/navigate-to-cofx :keycard-recovery-no-key nil)
