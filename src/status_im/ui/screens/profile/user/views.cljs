@@ -67,14 +67,15 @@
            :style               {:height 44 :margin-horizontal 0}
            :accessibility-label :share-my-contact-code-button}]]]])))
 
-(defn- my-profile-settings [{:keys [seed-backed-up? mnemonic]}
+(defn- my-profile-settings [{:keys [seed-backed-up? mnemonic keycard-key-uid]}
                             {:keys [settings]}
                             logged-in?]
   (let [show-backup-seed? (and (not seed-backed-up?) (not (string/blank? mnemonic)))]
     [react/view
      [profile.components/settings-title (i18n/label :t/settings)]
      (when (and config/hardwallet-enabled?
-                platform/android?)
+                platform/android?
+                keycard-key-uid)
        [profile.components/settings-item {:label-kw            :t/status-keycard
                                           :accessibility-label :keycard-button
                                           :action-fn           #(re-frame/dispatch [:profile.ui/keycard-settings-button-pressed])}])

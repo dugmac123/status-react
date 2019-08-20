@@ -1601,6 +1601,7 @@
             (navigation/navigate-to-cofx :enter-pin-login nil)))
 
 (fx/defn generate-and-load-key
+  {:events [:hardwallet/generate-and-load-key]}
   [{:keys [db] :as cofx}]
   (let [{:keys [mnemonic pairing pin]} (get-in db [:hardwallet :secrets])
         {:keys [selected-id multiaccounts]} (:intro-wizard db)
@@ -1620,7 +1621,9 @@
 (fx/defn create-keycard-multiaccount
   [{:keys [db] :as cofx}]
   (let [{{:keys [multiaccount secrets flow]} :hardwallet} db
-        {:keys [whisper-public-key
+        {:keys [address
+                public-key
+                whisper-public-key
                 wallet-public-key
                 whisper-address
                 wallet-address
@@ -1629,13 +1632,17 @@
                 key-uid]} multiaccount
         {:keys [pairing paired-on]} secrets]
     (fx/merge cofx
-              {:db (assoc-in db [:hardwallet :setup-step] nil)}
+              {:db (-> db
+                       (assoc-in [:hardwallet :setup-step] nil)
+                       (assoc :intro-wizard nil))}
               (multiaccounts.create/on-multiaccount-created
                {:derived              {constants/path-whisper-keyword        {:publicKey whisper-public-key
                                                                               :address   whisper-address}
                                        constants/path-default-wallet-keyword {:publicKey wallet-public-key
                                                                               :address   wallet-address}}
                 :mnemonic             ""
+                :address              address
+                :publicKey            public-key
                 :keycard-instance-uid instance-uid
                 :keycard-key-uid      key-uid
                 :keycard-pairing      pairing
@@ -1645,16 +1652,18 @@
                 :login?          true})
               (if (= flow :import)
                 (navigation/navigate-to-cofx :keycard-recovery-success nil)
-                (navigation/navigate-to-cofx :keycard-welcome nil)))))
+                (navigation/navigate-to-clean :home nil)))))
 
 (fx/defn on-generate-and-load-key-success
   [{:keys [db random-guid-generator] :as cofx} data]
-  (let [account-data (js->clj data :keywordize-keys true)
-        flow (get-in db [:hardwallet :flow])
-        node-started? (= :started (:node/status db))]
+  (let [account-data (js->clj data :keywordize-keys true)]
     (fx/merge cofx
               {:db (-> db
                        (assoc-in [:hardwallet :multiaccount] (-> account-data
+                                                                 (update :address #(str "0x" %))
+                                                                 (update :whisper-address #(str "0x" %))
+                                                                 (update :wallet-address #(str "0x" %))
+                                                                 (update :public-key #(str "0x" %))
                                                                  (update :whisper-public-key #(str "0x" %))
                                                                  (update :wallet-public-key #(str "0x" %))
                                                                  (update :instance-uid #(get-in db [:hardwallet :multiaccount :instance-uid] %))))
@@ -1666,9 +1675,7 @@
                        (update-in [:hardwallet :secrets] dissoc :pin :puk :password)
                        (assoc :multiaccounts/new-installation-id (random-guid-generator))
                        (update-in [:hardwallet :secrets] dissoc :mnemonic))}
-              (create-keycard-multiaccount)
-              (when-not (= flow :import)
-                (navigation/navigate-to-cofx :keycard-welcome nil)))))
+              (create-keycard-multiaccount))))
 
 (fx/defn on-generate-and-load-key-error
   [{:keys [db] :as cofx} {:keys [error code]}]
@@ -1696,9 +1703,9 @@
                                                             :photo-path photo-path
                                                             :name name))
                :hardwallet/get-application-info {:pairing    (get-pairing db instance-uid)}
-               :hardwallet/login-with-keycard {:whisper-private-key whisper-private-key
-                                               :encryption-public-key encryption-public-key
-                                               :on-result #(re-frame/dispatch [:multiaccounts.login.callback/login-success %])}})))
+               :hardwallet/login-with-keycard   {:whisper-private-key   whisper-private-key
+                                                 :encryption-public-key encryption-public-key
+                                                 :on-result             #(re-frame/dispatch [:multiaccounts.login.callback/login-success %])}})))
 
 (fx/defn on-get-keys-error
   [{:keys [db] :as cofx} error]
