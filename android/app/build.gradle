@@ -285,7 +285,6 @@ dependencies {
     implementation project(':react-native-shake')
     implementation project(':react-native-gesture-handler')
     implementation project(':react-native-screens')
-    implementation project(':@react-native-community_async-storage')
     implementation project(':RNMail')
     compile ('com.google.android.gms:play-services-base:16.0.1') {
         force = true

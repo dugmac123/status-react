@@ -40,7 +40,6 @@ import com.chirag.RNMail.*;
 import com.clipsub.RNShake.RNShakeEventPackage;
 import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
 import com.swmansion.rnscreens.RNScreensPackage;
-import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
 
 public class MainApplication extends MultiDexApplication implements ReactApplication {
 
@@ -81,8 +80,7 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
                     new RNShakeEventPackage(),
                     new FingerprintAuthPackage(),
                     new RNGestureHandlerPackage(),
-                    new RNScreensPackage(),
-                    new AsyncStoragePackage());
+                    new RNScreensPackage());
         }
 
         @Override
