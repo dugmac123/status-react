@@ -14,7 +14,8 @@
             [status-im.ui.components.lists.cell.view :as cell]
             [status-im.utils.identicon :as identicon]
             [status-im.ui.components.action-button.action-button :as action-button]
-            [status-im.ui.components.action-button.styles :as action-button.styles]))
+            [status-im.ui.components.action-button.styles :as action-button.styles]
+            [status-im.ui.screens.chat.photos :as photos]))
 
 (defview connection-lost []
   (letsubs [{:keys [card-connected?]} [:keycard]]
@@ -363,92 +364,85 @@
             enter-step [:hardwallet/pin-enter-step]
             status [:hardwallet/pin-status]
             error-label [:hardwallet/pin-error-label]
-            {:keys [address public-key]} [:multiaccounts/login]]
-    (let [address (str "0x" address)]
-      [react/view styles/container
-       [toolbar/toolbar
-        {:transparent? true
-         :style        {:margin-top 32}}
-        [toolbar/nav-text
-         {:handler #(re-frame/dispatch [:keycard.login.pin.ui/cancel-pressed])
-          :style   {:padding-left 21}}
-         (i18n/label :t/cancel)]
-        [react/text {:style {:color colors/gray}}
-         (i18n/label :t/step-i-of-n {:number 2
-                                     :step   1})]
-        [react/view {:margin-right 20}
-         [react/touchable-highlight
-          {:on-press #(re-frame/dispatch [:keycard.login.pin.ui/more-icon-pressed])}
-          [vector-icons/icon :main-icons/more {:color           colors/black
-                                               :container-style {:margin-left 5}}]]]]
-       [react/view {:flex            1
-                    :flex-direction  :column
-                    :justify-content :space-between
-                    :align-items     :center
-                    :margin-top      60}
-        [react/view {:flex-direction  :column
-                     :flex            1
-                     :justify-content :center
-                     :align-items     :center}
-         [react/view {:margin-horizontal 16
-                      :flex-direction    :column}
-          [react/view {:justify-content :center
-                       :align-items     :center
-                       :flex-direction  :row}
-           [react/view {:width           69
-                        :height          69
-                        :justify-content :center
-                        :align-items     :center}
-            [react/image {:source {:uri (identicon/identicon public-key)}
-                          :style  {:width         61
-                                   :height        61
-                                   :border-radius 30
-                                   :border-width  1
-                                   :border-color  colors/black-transparent}}]
-            [react/view {:justify-content  :center
-                         :align-items      :center
-                         :width            24
-                         :height           24
-                         :border-radius    24
-                         :position         :absolute
-                         :right            0
-                         :bottom           0
-                         :background-color :white
-                         :border-width     1
-                         :border-color     colors/black-transparent}
-             [react/image {:source (resources/get-image :keycard-key)
-                           :style  {:width  8
-                                    :height 14}}]]]]
-          [react/text {:style           {:text-align  :center
-                                         :margin-top  12
-                                         :color       colors/black
-                                         :font-weight "500"}
-                       :number-of-lines 1
-                       :ellipsize-mode  :middle}
-           (gfy/generate-gfy public-key)]
-          [react/text {:style           {:text-align  :center
-                                         :margin-top  4
-                                         :color       colors/gray
-                                         :font-family "monospace"}
-                       :number-of-lines 1
-                       :ellipsize-mode  :middle}
-           (utils.core/truncate-str address 14 true)]]]
-        [pin.views/pin-view
-         {:pin         pin
-          :status      status
-          :error-label error-label
-          :step        enter-step}]
-        [react/view {:margin-bottom 32}
-         [react/touchable-highlight
-          {:on-press #(re-frame/dispatch [:keycard.login.ui/recover-key-pressed])}
-          [react/text {:style {:color colors/blue}}
-           (i18n/label :t/recover-key)]]]]])))
+            {:keys [address name photo-path]} [:multiaccounts/login]]
+    [react/view styles/container
+     [toolbar/toolbar
+      {:transparent? true
+       :style        {:margin-top 32}}
+      [toolbar/nav-text
+       {:handler #(re-frame/dispatch [:keycard.login.pin.ui/cancel-pressed])
+        :style   {:padding-left 21}}
+       (i18n/label :t/cancel)]
+      [react/text {:style {:color colors/gray}}
+       (i18n/label :t/step-i-of-n {:number 2
+                                   :step   1})]
+      [react/view {:margin-right 20}
+       [react/touchable-highlight
+        {:on-press #(re-frame/dispatch [:keycard.login.pin.ui/more-icon-pressed])}
+        [vector-icons/icon :main-icons/more {:color           colors/black
+                                             :container-style {:margin-left 5}}]]]]
+     [react/view {:flex            1
+                  :flex-direction  :column
+                  :justify-content :space-between
+                  :align-items     :center
+                  :margin-top      60}
+      [react/view {:flex-direction  :column
+                   :flex            1
+                   :justify-content :center
+                   :align-items     :center}
+       [react/view {:margin-horizontal 16
+                    :flex-direction    :column}
+        [react/view {:justify-content :center
+                     :align-items     :center
+                     :flex-direction  :row}
+         [react/view {:width           69
+                      :height          69
+                      :justify-content :center
+                      :align-items     :center}
+          [photos/photo photo-path {:size 61}]
+          [react/view {:justify-content  :center
+                       :align-items      :center
+                       :width            24
+                       :height           24
+                       :border-radius    24
+                       :position         :absolute
+                       :right            0
+                       :bottom           0
+                       :background-color :white
+                       :border-width     1
+                       :border-color     colors/black-transparent}
+           [react/image {:source (resources/get-image :keycard-key)
+                         :style  {:width  8
+                                  :height 14}}]]]]
+        [react/text {:style           {:text-align  :center
+                                       :margin-top  12
+                                       :color       colors/black
+                                       :font-weight "500"}
+                     :number-of-lines 1
+                     :ellipsize-mode  :middle}
+         name]
+        [react/text {:style           {:text-align  :center
+                                       :margin-top  4
+                                       :color       colors/gray
+                                       :font-family "monospace"}
+                     :number-of-lines 1
+                     :ellipsize-mode  :middle}
+         (utils.core/truncate-str address 14 true)]]]
+      [pin.views/pin-view
+       {:pin         pin
+        :status      status
+        :error-label error-label
+        :step        enter-step}]
+      [react/view {:margin-bottom 32}
+       [react/touchable-highlight
+        {:on-press #(re-frame/dispatch [:keycard.login.ui/recover-key-pressed])}
+        [react/text {:style {:color colors/blue}}
+         (i18n/label :t/recover-key)]]]]]))
 
 (defview login-connect-card []
   (letsubs [status [:hardwallet/pin-status]
-            {:keys [address public-key]} [:multiaccounts/login]]
-    (let [address (str "0x" address)
-          in-progress? (= status :verifying)]
+            {:keys [address name photo-path]} [:multiaccounts/login]]
+    (let [in-progress? (= status :verifying)]
       [react/view styles/container
        [toolbar/toolbar
         {:transparent? true
@@ -479,12 +473,7 @@
                         :height          69
                         :justify-content :center
                         :align-items     :center}
-            [react/image {:source {:uri (identicon/identicon public-key)}
-                          :style  {:width         61
-                                   :height        61
-                                   :border-radius 30
-                                   :border-width  1
-                                   :border-color  colors/black-transparent}}]
+            [photos/photo photo-path {:size 61}]
             [react/view {:justify-content  :center
                          :align-items      :center
                          :width            24
@@ -505,7 +494,7 @@
                                          :font-weight "500"}
                        :number-of-lines 1
                        :ellipsize-mode  :middle}
-           (gfy/generate-gfy public-key)]
+           name]
           [react/text {:style           {:text-align  :center
                                          :margin-top  4
                                          :color       colors/gray

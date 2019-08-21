@@ -527,14 +527,10 @@
   [{:keys [db] :as cofx}]
   (let [application-info (get-in db [:hardwallet :application-info])
         keycard-key-uid (get-in db [:hardwallet :application-info :key-uid])
-        keycard-instance-uid (get-in db [:hardwallet :application-info :instance-uid])
         multiaccount (get-in db [:multiaccounts/multiaccounts (get-in db [:multiaccounts/login :address])])
         multiaccount-key-uid (get multiaccount :keycard-key-uid)
-        multiaccount-instance-uid (get multiaccount :keycard-instance-uid)
         multiaccount-mismatch? (or (nil? multiaccount)
-                                   (if (:keycard-key-uid multiaccount)
-                                     (not= multiaccount-key-uid keycard-key-uid)
-                                     (not= multiaccount-instance-uid keycard-instance-uid)))
+                                   (not= multiaccount-key-uid keycard-key-uid))
         pairing (:keycard-pairing multiaccount)]
     (cond
       (empty? application-info)
@@ -1652,7 +1648,7 @@
                 :login?          true})
               (if (= flow :import)
                 (navigation/navigate-to-cofx :keycard-recovery-success nil)
-                (navigation/navigate-to-clean :home nil)))))
+                (navigation/navigate-to-cofx :home nil)))))
 
 (fx/defn on-generate-and-load-key-success
   [{:keys [db random-guid-generator] :as cofx} data]
@@ -1686,6 +1682,11 @@
                      (assoc-in [:hardwallet :setup-error] error))}
             (process-error code error)))
 
+(fx/defn on-login-success
+  {:events [:keycard.login.callback/login-success]}
+  [cofx result]
+  (log/debug "loginWithKeycard success: " result))
+
 (fx/defn on-get-keys-success
   [{:keys [db] :as cofx} data]
   (let [{:keys [wallet-address whisper-address encryption-public-key whisper-private-key] :as account-data} (js->clj data :keywordize-keys true)
@@ -1705,7 +1706,7 @@
                :hardwallet/get-application-info {:pairing    (get-pairing db instance-uid)}
                :hardwallet/login-with-keycard   {:whisper-private-key   whisper-private-key
                                                  :encryption-public-key encryption-public-key
-                                                 :on-result             #(re-frame/dispatch [:multiaccounts.login.callback/login-success %])}})))
+                                                 :on-result             #(re-frame/dispatch [:keycard.login.callback/login-success %])}})))
 
 (fx/defn on-get-keys-error
   [{:keys [db] :as cofx} error]

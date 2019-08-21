@@ -76,7 +76,7 @@
         multiaccount-address (-> (:address multiaccount)
                                  (string/lower-case)
                                  (string/replace-first "0x" ""))
-        keycard-multiaccount? (boolean (get-in db [:multiaccounts/multiaccounts multiaccount-address :keycard-instance-uid]))]
+        keycard-multiaccount? (boolean (get-in db [:multiaccounts/multiaccounts multiaccount-address :keycard-key-uid]))]
     (if keycard-multiaccount?
       ;; trying to recover multiaccount created with keycard
       {:db        (-> db
