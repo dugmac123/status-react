@@ -112,3 +112,17 @@
        (getItem "status-keycard-pairings")
        (then #(re-frame/dispatch [:hardwallet.callback/on-retrieve-pairings-success
                                   (types/json->clj %)])))))
+
+(re-frame/reg-fx
+ :hardwallet/listen-to-hardware-back-button
+ (fn []
+   (re-frame/dispatch [:hardwallet/add-listener-to-hardware-back-button
+                       (.addEventListener js-dependencies/back-handler "hardwareBackPress"
+                                          (fn []
+                                            (re-frame/dispatch [:hardwallet/back-button-pressed])
+                                            true))])))
+
+(re-frame/reg-fx
+ :hardwallet/remove-listener-to-hardware-back-button
+ (fn [listener]
+   (.remove listener)))

@@ -56,6 +56,21 @@
       (:keycard-pairing
        (find-multiaccount-by-keycard-instance-uid db instance-uid))))))
 
+(fx/defn listen-to-hardware-back-button
+  [{:keys [db]}]
+  (when-not (get-in db [:hardwallet :back-button-listener])
+    {:hardwallet/listen-to-hardware-back-button nil}))
+
+(fx/defn remove-listener-to-hardware-back-button
+  [{:keys [db]}]
+  (when-let [listener (get-in db [:hardwallet :back-button-listener])]
+    {:hardwallet/remove-listener-to-hardware-back-button listener}))
+
+(fx/defn on-add-listener-to-hardware-back-button
+  {:events [:hardwallet/add-listener-to-hardware-back-button]}
+  [{:keys [db]} listener]
+  {:db (assoc-in db [:hardwallet :back-button-listener] listener)})
+
 (fx/defn hardwallet-connect-navigate-back-button-clicked
   [{:keys [db] :as cofx}]
   (fx/merge cofx
@@ -183,6 +198,7 @@
   (fx/merge cofx
             {:db (-> db
                      (assoc-in [:hardwallet :setup-step] :pair))}
+            (listen-to-hardware-back-button)
             (navigation/navigate-to-cofx :keycard-recovery-pair nil)))
 
 (fx/defn load-pairing-screen
@@ -212,6 +228,8 @@
 
 (fx/defn cancel-setup-pressed
   {:events [:keycard.onboarding.ui/cancel-pressed
+            :hardwallet/back-button-pressed
+            :keycard.onboarding.recovery-phrase.ui/cancel-pressed
             :keycard.onboarding.connection-lost-setup.ui/cancel-setup-pressed]}
   [_]
   {:ui/show-confirmation {:title               (i18n/label :t/keycard-cancel-setup-title)
@@ -224,9 +242,11 @@
 (fx/defn cancel-setup-confirm-pressed
   {:events [:keycard.onboarding.ui/cancel-confirm-pressed]}
   [{:keys [db] :as cofx}]
-  (if (:multiaccounts/multiaccounts db)
-    (navigation/navigate-to-clean cofx :multiaccounts nil)
-    (navigation/navigate-to-clean cofx :intro nil)))
+  (fx/merge cofx
+            (remove-listener-to-hardware-back-button)
+            (navigation/navigate-reset {:index   0
+                                        :actions [{:routeName (if (:multiaccounts/multiaccounts db)
+                                                                :multiaccounts :intro)}]})))
 
 (fx/defn load-finishing-screen
   {:events [:keycard.onboarding.recovery-phrase-confirm-word2.ui/next-pressed
@@ -248,10 +268,6 @@
   [_]
   (.openURL (react/linking) "https://keycard.status.im"))
 
-(fx/defn recovery-phrase-cancel-pressed
-  {:events [:keycard.onboarding.recovery-phrase.ui/cancel-pressed]}
-  [_])
-
 (fx/defn recovery-phrase-next-pressed
   {:events [:keycard.onboarding.recovery-phrase.ui/next-pressed]}
   [_]
@@ -262,18 +278,21 @@
                           :on-accept           #(re-frame/dispatch [:keycard.onboarding.recovery-phrase.ui/confirm-pressed])
                           :on-cancel           #()}})
 
-(fx/defn recovery-phrase-start-confirmation [{:keys [db]}]
+(fx/defn recovery-phrase-start-confirmation
+  [{:keys [db] :as cofx}]
   (let [mnemonic (get-in db [:hardwallet :secrets :mnemonic])
         [word1 word2] (shuffle (map-indexed vector (clojure.string/split mnemonic #" ")))
         word1 (zipmap [:idx :word] word1)
         word2 (zipmap [:idx :word] word2)]
-    {:db (-> db
-             (assoc-in [:hardwallet :setup-step] :recovery-phrase-confirm-word1)
-             (assoc-in [:hardwallet :recovery-phrase :step] :word1)
-             (assoc-in [:hardwallet :recovery-phrase :confirm-error] nil)
-             (assoc-in [:hardwallet :recovery-phrase :input-word] nil)
-             (assoc-in [:hardwallet :recovery-phrase :word1] word1)
-             (assoc-in [:hardwallet :recovery-phrase :word2] word2))}))
+    (fx/merge cofx
+              {:db (-> db
+                       (assoc-in [:hardwallet :setup-step] :recovery-phrase-confirm-word1)
+                       (assoc-in [:hardwallet :recovery-phrase :step] :word1)
+                       (assoc-in [:hardwallet :recovery-phrase :confirm-error] nil)
+                       (assoc-in [:hardwallet :recovery-phrase :input-word] nil)
+                       (assoc-in [:hardwallet :recovery-phrase :word1] word1)
+                       (assoc-in [:hardwallet :recovery-phrase :word2] word2))}
+              (remove-listener-to-hardware-back-button))))
 
 (fx/defn recovery-phrase-confirm-pressed
   {:events [:keycard.onboarding.recovery-phrase.ui/confirm-pressed]}
@@ -338,9 +357,10 @@
   [{:keys [db] :as cofx}]
   (fx/merge cofx
             {:db (-> db
-                     (assoc-in [:hardwallet :pin] {:enter-step     :import-multiaccount
+                     (assoc-in [:hardwallet :pin] {:enter-step          :import-multiaccount
                                                    :import-multiaccount []
-                                                   :current        []}))}
+                                                   :current             []}))}
+            (listen-to-hardware-back-button)
             (navigation/navigate-to-cofx :keycard-recovery-pin nil)))
 
 (fx/defn generate-mnemonic
@@ -369,6 +389,7 @@
       (if pairing-data
         (fx/merge cofx
                   {:db (update-in db [:hardwallet :secrets] merge pairing-data)}
+                  (listen-to-hardware-back-button)
                   (when (= flow :create)
                     (proceed-with-generating-mnemonic))
                   (when (= flow :recovery)
@@ -1428,6 +1449,7 @@
                   (navigation/navigate-to-cofx :hardwallet-authentication-method nil))))))
 
 (fx/defn on-install-applet-and-init-card-success
+  {:events [:hardwallet.callback/on-install-applet-and-init-card-success]}
   [{:keys [db] :as cofx} secrets]
   (let [secrets' (js->clj secrets :keywordize-keys true)]
     (fx/merge cofx
@@ -1437,6 +1459,7 @@
                                                     (assoc-in [:hardwallet :on-card-connected] nil)
                                                     (assoc-in [:hardwallet :setup-step] :secret-keys)
                                                     (update-in [:hardwallet :secrets] merge secrets'))}
+              (listen-to-hardware-back-button)
               (navigation/navigate-to-cofx :keycard-onboarding-puk-code nil))))
 
 (def on-init-card-success on-install-applet-and-init-card-success)
@@ -1671,6 +1694,7 @@
                        (update-in [:hardwallet :secrets] dissoc :pin :puk :password)
                        (assoc :multiaccounts/new-installation-id (random-guid-generator))
                        (update-in [:hardwallet :secrets] dissoc :mnemonic))}
+              (remove-listener-to-hardware-back-button)
               (create-keycard-multiaccount))))
 
 (fx/defn on-generate-and-load-key-error

@@ -768,11 +768,6 @@
    (hardwallet/on-init-card-error cofx error)))
 
 (handlers/register-handler-fx
- :hardwallet.callback/on-install-applet-and-init-card-success
- (fn [cofx [_ secrets]]
-   (hardwallet/on-install-applet-and-init-card-success cofx secrets)))
-
-(handlers/register-handler-fx
  :hardwallet.callback/on-install-applet-and-init-card-error
  (fn [cofx [_ error]]
    (hardwallet/on-install-applet-and-init-card-error cofx error)))
