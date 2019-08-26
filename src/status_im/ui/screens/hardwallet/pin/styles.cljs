@@ -10,7 +10,6 @@
   {:flex            1
    :flex-direction  :column
    :justify-content :space-between
-   ;:padding-bottom  10
    :android         {:margin-top 10}
    :ios             {:margin-top 10}})
 

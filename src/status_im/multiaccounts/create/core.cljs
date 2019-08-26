@@ -164,22 +164,23 @@
         name (gfycat/generate-gfy public-key)
         photo-path (identicon/identicon public-key)
         account-data {:name name :address address :photo-path photo-path}
-        new-multiaccount {:address              address
-                          :name                 name
-                          :public-key           public-key
-                          :photo-path           photo-path
-                          :latest-derived-path  0
-                          :accounts             [wallet-account]
-                          :installation-id      (random-guid-generator)
-                          :signing-phrase       signing-phrase
-                          :mnemonic             mnemonic
-                          :settings             constants/default-multiaccount-settings
-                          :network              constants/default-network
-                          :networks/networks    constants/default-networks
-                          :keycard-instance-uid keycard-instance-uid
-                          :keycard-key-uid      keycard-key-uid
-                          :keycard-pairing      keycard-pairing
-                          :keycard-paired-on    keycard-paired-on}
+        new-multiaccount (cond-> {:address             address
+                                  :name                name
+                                  :public-key          public-key
+                                  :photo-path          photo-path
+                                  :latest-derived-path 0
+                                  :accounts            [wallet-account]
+                                  :installation-id     (random-guid-generator)
+                                  :signing-phrase      signing-phrase
+                                  :mnemonic            mnemonic
+                                  :settings            constants/default-multiaccount-settings
+                                  :network             constants/default-network
+                                  :networks/networks   constants/default-networks}
+
+                           keycard-key-uid (assoc :keycard-instance-uid keycard-instance-uid
+                                                  :keycard-key-uid keycard-key-uid
+                                                  :keycard-pairing keycard-pairing
+                                                  :keycard-paired-on keycard-paired-on))
         db (-> db
                (assoc :multiaccounts/login {:address      address
                                             :name         name
