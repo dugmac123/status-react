@@ -5773,7 +5773,7 @@ react-native-languages@^3.0.2:
 
 "react-native-qrcode@git+https://github.com/siphiuel/react-native-qrcode.git#v0.2.9":
   version "0.2.9"
-  resolved "git+https://github.com/siphiuel/react-native-qrcode.git#26fc0e4dc31e7e0ea277337e32604867162e53d4"
+  resolved "git+https://github.com/siphiuel/react-native-qrcode.git#79f205a639c5dd107bce6b34c013db51f2dfc504"
   dependencies:
     create-react-class "^15.6.0"
     prop-types "^15.5.10"
