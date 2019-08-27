@@ -175,7 +175,6 @@
 (re-frame/reg-fx
  :wallet/get-tokens-balances
  (fn [{:keys [addresses tokens assets]}]
-   ;;TODO not great to have so many calls , should be optimized, there is wallet_getTokensBalances why wouldn't use it?
    (let [tokens-addresses (keys tokens)]
      (json-rpc/call
       {:method "wallet_getTokensBalances"
